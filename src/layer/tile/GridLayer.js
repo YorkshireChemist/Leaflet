@@ -146,7 +146,13 @@ export var GridLayer = Layer.extend({
 
 		// @option keepBuffer: Number = 2
 		// When panning the map, keep this many rows and columns of tiles before unloading them.
-		keepBuffer: 2
+		keepBuffer: 2,
+		
+		// @option zoomClamp: String = 'round'|'ceil'
+		// At fractional zoom levels, tiles can be scaled either up or down. 
+		// With zoomClamp = 'ceil', tiles are always scaled down giving sharper images but increasing download size.
+		// With zoomClamp = 'round', tiles are scaled up or down from the nearest integer zoom.
+		zoomClamp: 'round'
 	},
 
 	initialize: function (options) {
@@ -544,7 +550,11 @@ export var GridLayer = Layer.extend({
 	},
 
 	_setView: function (center, zoom, noPrune, noUpdate) {
-		var tileZoom = this._clampZoom(Math.round(zoom));
+		if (this.options.zoomClamp === 'ceil') {
+			var tileZoom = this._clampZoom(Math.ceil(zoom));
+		} else {
+			var tileZoom = this._clampZoom(Math.round(zoom));
+		}
 		if ((this.options.maxZoom !== undefined && tileZoom > this.options.maxZoom) ||
 		    (this.options.minZoom !== undefined && tileZoom < this.options.minZoom)) {
 			tileZoom = undefined;
